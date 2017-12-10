@@ -314,6 +314,7 @@ export function stateMixin (Vue: Class<Component>) {
   const propsDef = {}
   propsDef.get = function () { return this._props }
   if (process.env.NODE_ENV !== 'production') {
+    // 开发环境给出相应警告
     dataDef.set = function (newData: Object) {
       warn(
         'Avoid replacing instance root $data. ' +
@@ -325,6 +326,7 @@ export function stateMixin (Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
+  // $data、$props有只读限制
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 

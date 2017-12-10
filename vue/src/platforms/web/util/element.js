@@ -51,7 +51,6 @@ export function getTagNamespace (tag: string): ?string {
 // 一个存储未注册标签的cache
 const unknownElementCache = Object.create(null)
 export function isUnknownElement (tag: string): boolean {
-  debugger
   /* istanbul ignore if */
   // 非浏览器环境 返回true
   if (!inBrowser) {
