@@ -1,6 +1,4 @@
-# day01 由入口来看
-
-### 一 先运行调试命令
+# 一、运行调试命令
 
 ```
 npm run dev
@@ -18,29 +16,29 @@ npm run dev
 当前项目已做以上处理。
 [参考](http://blog.csdn.net/reusli/article/details/78762510)
 
-### 二 找主文件
+# 二、找主文件
 
-根据entry和import
+## 根据entry和import
 1. build/config.js ->
 2. src/platforms/web/entry-runtime-with-compiler.js ->
 3. src/platforms/web/runtime/index.js ->
 4. src/core/index.js ->
 5. src/core/instance/index.js
 
-备注
+## 备注
 
 1. 是构建文件入口。
 2. 根据运行平台(和你的构建指令也有关系)不同进行不同配置的入口。
 3. 就要找到了，此文件内对`Vue`做了平台相关的配置。
-4. 找到了。
+4. 找到了，在`Vue`上添加了`version`，添加了`options{components, directive, filter})`
 5. 我们先看这个。
 
 
-### 三 src/core/instance/index.js
+# 三、src/core/instance/index.js
 
 注意到有一个构造函数和五个函数的调用。
 
-```
+```js
 // 构造函数
 function Vue (options) {
   if (process.env.NODE_ENV !== 'production' &&
@@ -64,64 +62,129 @@ renderMixin(Vue)
 5个函数的调用，从函数的命名上我们也能看出来分别是初始化相关、数据状态相关、事件相关、声明周期相关、渲染相关。
 我们先一个个的看这5个函数
 
-1. initMixin
+## 1. initMixin
 ```js
- Vue.prototype._init = function (options?: Object) {xxx}
+ Vue.prototype._init = function (options?: Object) {}
 ```
 内部对Vue的原型上添加了`_init`方法，就是上面构造函数最后调用的方法。
 
-2. stateMixin
+## 2. stateMixin
 ```js
 Object.defineProperty(Vue.prototype, '$data', dataDef)
 Object.defineProperty(Vue.prototype, '$props', propsDef)
 Vue.prototype.$set = set
 Vue.prototype.$delete = del
-Vue.prototype.$watch = function (){xxxx}
+Vue.prototype.$watch = function (){}
 ```
 内部对Vue的原型上添加了四个属性`$data`、`$props`、`$set`、`$delete`、`$watch`，其中`$data`、`$props`因为有只读方面的限制，所以使用`Object.defineProperty`的方式定义，其中各自的xxxDef对`set`和`get`做了处理。
 
-3. eventsMixin
+## 3. eventsMixin
 ```js
-Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {xxx}
-Vue.prototype.$once = function (event: string, fn: Function): Component {xxx}
-Vue.prototype.$off = function (event?: string | Array<string>, fn?: Function): Component {xxx}
-Vue.prototype.$emit = function (event: string): Component {xxx}
-
+Vue.prototype.$on = function () {}
+Vue.prototype.$once = function () {}
+Vue.prototype.$off = function () {}
+Vue.prototype.$emit = function () {}
 ```
 Vue原型上添加了四个事件相关的方法。
 
-4. lifecycleMixin
+## 4. lifecycleMixin
 ```js
-Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {xxx}
-Vue.prototype.$forceUpdate = function () {xxx}
-Vue.prototype.$destroy = function () {xxx}
+Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {}
+Vue.prototype.$forceUpdate = function () {}
+Vue.prototype.$destroy = function () {}
 ```
 Vue原型上添加了`_update`，`$forceUpdate`，`$destory`方法，方法内部针对同名周期做了组件的更新和状态的记录。
 
-5. renderMixin
+## 5. renderMixin
 ```js
+// 渲染相关的功能函数
 installRenderHelpers(Vue.prototype)
-Vue.prototype.$nextTick = function (fn: Function) {xxx}
-Vue.prototype._render = function (): VNode {xxx}
+Vue.prototype.$nextTick = function (fn: Function) {}
+Vue.prototype._render = function (): VNode {}
 ```
 
-
-### 待解决代码
-
-1. Vue.prototype._init （day02）
-2. state
+## 此时的Vue
+```
+1. initMixin(Vue) --> src/core/instance/init.js
+  *  Vue.prototype._init （day02）
+2. stateMixin(Vue) --> src/core/instance/state.js
+  * Vue.prototype.$data
   * Vue.prototype.$set = set
   * Vue.prototype.$delete = del
   * Vue.prototype.$watch
-3. event
+3. eventsMixin(Vue) --> src/core/instance/events.js
   * Vue.prototype.$on
   * Vue.prototype.$once
   * Vue.prototype.$off
   * Vue.prototype.$emit
-4. lifecycle
+4. lifecycleMixin(Vue) --> src/core/instance/lifecycle.js
   * Vue.prototype._update
   * Vue.prototype.$forceUpdate
   * Vue.prototype.$destroy
-5. render
+5. renderMixin(Vue)
   * Vue.prototype.$nextTick
   * Vue.prototype._render
+  * Vue.prototype['一些辅助渲染相关的函数']
+```
+
+# 四、src/core/index.js
+```
+initGlobalAPI(Vue)
+Object.defineProperty(Vue.prototype, '$isServer', {
+  get: isServerRendering
+})
+Object.defineProperty(Vue.prototype, '$ssrContext', {
+  get () {
+    return this.$vnode && this.$vnode.ssrContext
+  }
+})
+Vue.version = '__VERSION__'
+```
+先看initGlobalAPI(Vue)
+
+```js
+Object.defineProperty(Vue, 'config', configDef)
+Vue.util = {
+  warn,
+  extend,
+  mergeOptions,
+  defineReactive
+}
+Vue.set = set
+Vue.delete = del
+Vue.nextTick = nextTick
+/* 
+ * options配置
+ * {
+ *   components,
+ *   directives,
+ *   filters
+ * }
+ */
+Vue.options = Object.create(null)
+ASSET_TYPES.forEach(type => {
+  Vue.options[type + 's'] = Object.create(null)
+})
+Vue.options._base = Vue
+/* 
+ * builtInComponents 为 KeepAlive
+ * 即为Vue配置全局keepAlive内置组件，应该还会在某个地方配Transtion
+ * 其他内置的指令、过滤器以后应该也会配进options里
+ */
+extend(Vue.options.components, builtInComponents)
+// Vue.use = function () {} 使用插件的方法
+initUse(Vue)
+// Vue.mixin = function () {}
+initMixin(Vue)
+/* 
+ * Vue.cid = 0
+ * Vue.extend = function () {} 应该是继承相关的
+ */
+initExtend(Vue)
+/*
+ * Vue.component = function () {}
+ * Vue.directive = function () {}
+ * Vue.filter = function () {}
+ */
+initAssetRegisters(Vue)
+```
