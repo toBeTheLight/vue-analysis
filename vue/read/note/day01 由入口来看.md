@@ -104,3 +104,24 @@ installRenderHelpers(Vue.prototype)
 Vue.prototype.$nextTick = function (fn: Function) {xxx}
 Vue.prototype._render = function (): VNode {xxx}
 ```
+
+
+### 待解决代码
+
+1. Vue.prototype._init （day02）
+2. state
+  * Vue.prototype.$set = set
+  * Vue.prototype.$delete = del
+  * Vue.prototype.$watch
+3. event
+  * Vue.prototype.$on
+  * Vue.prototype.$once
+  * Vue.prototype.$off
+  * Vue.prototype.$emit
+4. lifecycle
+  * Vue.prototype._update
+  * Vue.prototype.$forceUpdate
+  * Vue.prototype.$destroy
+5. render
+  * Vue.prototype.$nextTick
+  * Vue.prototype._render
