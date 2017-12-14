@@ -140,7 +140,7 @@ Object.defineProperty(Vue.prototype, '$ssrContext', {
 })
 Vue.version = '__VERSION__'
 ```
-先看initGlobalAPI(Vue)
+## 先看initGlobalAPI(Vue)
 
 ```js
 Object.defineProperty(Vue, 'config', configDef)
@@ -188,3 +188,57 @@ initExtend(Vue)
  */
 initAssetRegisters(Vue)
 ```
+## 然后
+```js
+Vue.version = '__VERSION__'
+Object.defineProperty(Vue.prototype, '$isServer', {
+  get: isServerRendering
+})
+Object.defineProperty(Vue.prototype, '$ssrContext', {
+  get () {
+    /* istanbul ignore next */
+    return this.$vnode && this.$vnode.ssrContext
+  }
+})
+```
+
+# 五、src/platforms/web/runtime/index.js
+我们按照import顺序继续看
+
+此文件做了这些事情
+```js
+// 安装平台指定utils
+Vue.config.mustUseProp = mustUseProp
+Vue.config.isReservedTag = isReservedTag
+Vue.config.isReservedAttr = isReservedAttr
+Vue.config.getTagNamespace = getTagNamespace
+Vue.config.isUnknownElement = isUnknownElement
+
+// 安装平台相关指令和组件
+/*
+ * platformDirectives中是model,show, 内置的指令，那if等是在哪里加上的呢？
+ * 
+ * platformComponents 中是Transition,TransitionGroup，前面提到的就是在这加* 上的
+ */
+extend(Vue.options.directives, platformDirectives)
+extend(Vue.options.components, platformComponents)
+
+// install platform patch function
+Vue.prototype.__patch__ = inBrowser ? patch : noop
+Vue.prototype.$mount = function () {}
+```
+
+# 六、src/platforms/web/entry-runtime-with-compiler.js
+
+```js
+const mount = Vue.prototype.$mount
+Vue.prototype.$mount = function () {
+  // xxx 针对template或el的情况做一些处理
+  return mount.call(this, el, hydrating)
+}
+// 在$mount 中有调用compileToFunctions，函数作用是template 编译为render函数
+Vue.compile = compileToFunctions
+```
+
+此章完。
+[参考。](http://hcysun.me/2017/03/03/Vue%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/)
