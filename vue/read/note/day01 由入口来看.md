@@ -18,7 +18,7 @@ npm run dev
 
 # 二、找主文件
 
-## 根据entry和import
+## 根据rollup配置的entry和import的引入顺序
 1. build/config.js ->
 2. src/platforms/web/entry-runtime-with-compiler.js ->
 3. src/platforms/web/runtime/index.js ->
@@ -31,7 +31,7 @@ npm run dev
 2. 根据运行平台(和你的构建指令也有关系)不同进行不同配置的入口。
 3. 就要找到了，此文件内对`Vue`做了平台相关的配置。
 4. 找到了，在`Vue`上添加了`version`，添加了`options{components, directive, filter})`
-5. 我们先看这个。
+5. 我们先看这个，然后按照5、4、3、2、1的顺序看源代码中都对Vue做了哪些处理。
 
 
 # 三、src/core/instance/index.js
@@ -62,13 +62,13 @@ renderMixin(Vue)
 5个函数的调用，从函数的命名上我们也能看出来分别是初始化相关、数据状态相关、事件相关、声明周期相关、渲染相关。
 我们先一个个的看这5个函数
 
-## 1. initMixin
+## initMixin
 ```js
  Vue.prototype._init = function (options?: Object) {}
 ```
 内部对Vue的原型上添加了`_init`方法，就是上面构造函数最后调用的方法。
 
-## 2. stateMixin
+## stateMixin
 ```js
 Object.defineProperty(Vue.prototype, '$data', dataDef)
 Object.defineProperty(Vue.prototype, '$props', propsDef)
@@ -78,7 +78,7 @@ Vue.prototype.$watch = function (){}
 ```
 内部对Vue的原型上添加了四个属性`$data`、`$props`、`$set`、`$delete`、`$watch`，其中`$data`、`$props`因为有只读方面的限制，所以使用`Object.defineProperty`的方式定义，其中各自的xxxDef对`set`和`get`做了处理。
 
-## 3. eventsMixin
+## eventsMixin
 ```js
 Vue.prototype.$on = function () {}
 Vue.prototype.$once = function () {}
@@ -87,7 +87,7 @@ Vue.prototype.$emit = function () {}
 ```
 Vue原型上添加了四个事件相关的方法。
 
-## 4. lifecycleMixin
+## lifecycleMixin
 ```js
 Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {}
 Vue.prototype.$forceUpdate = function () {}
@@ -95,7 +95,7 @@ Vue.prototype.$destroy = function () {}
 ```
 Vue原型上添加了`_update`，`$forceUpdate`，`$destory`方法，方法内部针对同名周期做了组件的更新和状态的记录。
 
-## 5. renderMixin
+## renderMixin
 ```js
 // 渲染相关的功能函数
 installRenderHelpers(Vue.prototype)
@@ -126,6 +126,7 @@ Vue.prototype._render = function (): VNode {}
   * Vue.prototype._render
   * Vue.prototype['一些辅助渲染相关的函数']
 ```
+我们看下一个引用文件
 
 # 四、src/core/index.js
 ```
@@ -201,9 +202,9 @@ Object.defineProperty(Vue.prototype, '$ssrContext', {
   }
 })
 ```
+我们按照import顺序继续看
 
 # 五、src/platforms/web/runtime/index.js
-我们按照import顺序继续看
 
 此文件做了这些事情
 ```js
@@ -227,6 +228,7 @@ extend(Vue.options.components, platformComponents)
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 Vue.prototype.$mount = function () {}
 ```
+然后看最后一个文件
 
 # 六、src/platforms/web/entry-runtime-with-compiler.js
 
@@ -240,5 +242,6 @@ Vue.prototype.$mount = function () {
 Vue.compile = compileToFunctions
 ```
 
-此章完。
+此章完，主要看了Vue的初始化的过程。
+
 [参考。](http://hcysun.me/2017/03/03/Vue%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/)
