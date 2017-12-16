@@ -359,18 +359,23 @@ export function mergeOptions (
   if (process.env.NODE_ENV !== 'production') {
     checkComponents(child)
   }
-
+  // 在哪种情况下会是个函数？render?
   if (typeof child === 'function') {
     child = child.options
   }
-
+  // 处理并检查props属性是否符合vue规范
   normalizeProps(child, vm)
+  // 处理并检查inject属性是否符合vue规范
   normalizeInject(child, vm)
+  // 处理指令，会给设置默认bind和update钩子
   normalizeDirectives(child)
   const extendsFrom = child.extends
   if (extendsFrom) {
+    // 处理当前实例的继承，因为其他实例肯定会与Vue.options合并，
+    // 所以可使用parent = 直接覆盖现有Vue.options
     parent = mergeOptions(parent, extendsFrom, vm)
   }
+    // mixins的合并
   if (child.mixins) {
     for (let i = 0, l = child.mixins.length; i < l; i++) {
       parent = mergeOptions(parent, child.mixins[i], vm)
@@ -379,6 +384,7 @@ export function mergeOptions (
   const options = {}
   let key
   for (key in parent) {
+    debugger
     mergeField(key)
   }
   for (key in child) {

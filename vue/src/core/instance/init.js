@@ -15,10 +15,9 @@ let uid = 0
 export function initMixin (Vue: Class<Component>) {
   // 将_init方法添加到原型对象上
   Vue.prototype._init = function (options?: Object) {
-    // 实例接收this
+    // 1. 使用了`vm`接收了`this`(实例)。
     const vm: Component = this
-    // a uid
-    // 给实例添加_uid，每创建一个组件_uid都不同，对于排查递归或组件遍历的异常可用
+    // 2. 首先在`this`上添加了`uid`属性，这是一个自增的值，每调用一次`Vue`就会`+1`，这个id可用来分辨递归或遍历出的组件的异常。
     vm._uid = uid++
     let startTag, endTag
     /* istanbul ignore if */
@@ -29,17 +28,26 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // a flag to avoid this being observed
+    // 3. 在`this`上添加了`_isVue`属性，值为`true`
     vm._isVue = true
     // merge options
+    // 判断 `options && options._isComponent`，
+    // 经过调试发现使用`Vue.component`时，会被添加`_isComponent = true`，
+    // 我们先不管它，使用`new Vue()`并不会走此分支，会进入下方代码分支，此时使用`mergeOptions`合并参数。
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // 这一部分做了将当前new Vue()的options与Vue.options的合并的处理
       vm.$options = mergeOptions(
+        // resolveConstructorOptions(vm.constructor) 处理的是构造函数继承相关的东西
+        // 然后返回Vue.options
         resolveConstructorOptions(vm.constructor),
+        // options 即为new Vue()传入的options
         options || {},
+        // 当前要创建的实例
         vm
       )
     }
