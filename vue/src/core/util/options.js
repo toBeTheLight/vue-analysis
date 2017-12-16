@@ -301,6 +301,7 @@ function normalizeProps (options: Object, vm: ?Component) {
  */
 function normalizeInject (options: Object, vm: ?Component) {
   const inject = options.inject
+  debugger
   const normalized = options.inject = {}
   if (Array.isArray(inject)) {
     for (let i = 0; i < inject.length; i++) {
@@ -366,6 +367,8 @@ export function mergeOptions (
   // 处理并检查props属性是否符合vue规范
   normalizeProps(child, vm)
   // 处理并检查inject属性是否符合vue规范
+  
+  console.log(JSON.stringify(child))
   normalizeInject(child, vm)
   // 处理指令，会给设置默认bind和update钩子
   normalizeDirectives(child)
@@ -383,10 +386,12 @@ export function mergeOptions (
   }
   const options = {}
   let key
+  // 将Vue.options上已有属性与传入options进行合并
   for (key in parent) {
-    debugger
     mergeField(key)
   }
+  console.log(JSON.stringify(child))
+  // options上属性与Vue.options的差集
   for (key in child) {
     if (!hasOwn(parent, key)) {
       mergeField(key)

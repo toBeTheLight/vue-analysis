@@ -112,9 +112,11 @@ function mergeOptions (
   }
   const options = {}
   let key
+  // 将Vue.options上已有属性与传入options进行合并
   for (key in parent) {
     mergeField(key)
   }
+  // options上属性与Vue.options的差集
   for (key in child) {
     if (!hasOwn(parent, key)) {
       mergeField(key)
