@@ -221,10 +221,7 @@ function initRender (vm: Component) {
 在这个函数内只是做了一些render相关的初始化工作，并没有真正的进入render的过程。我们看前面的函数调用顺序也能发现`beforeCreated`的钩子函数是在这之后调用的，所以很合理。
 函数内向vm实例上添加了一些方法，同时对'$attrs'和'$listeners'使用`Object.defineProperty`进行了动态响应的设置。这两个属性可以去查文档。
 
-###  initInjections()
-对组件的inject属性中的数据进行设置，暂时没弄明白，先不看。
-
-###  initState(vm)
+###  initState()
 ```js
 /*
 * 干了这些事
@@ -250,26 +247,9 @@ function initState (vm: Component) {
   }
 }
 ```
-###  initProvide(vm)
+## vm.$mount()
 
-### 此时的Vue
-```
-{
-  set () {},
-  delete () {},
-  nextTick () {},
-  version: '__VERSION__',
-  options: {
-    components: {
-      KeepAlive
-    },
-    directives: {},
-    filters: {},
-    _base: function () {}
-  }
-}
-```
+模板的解析和render是在这一部分
 
-### 待解决问题
-
-1. Vue.super
+# 结语
+本章主要梳理了下`init()`中的函数执行流程，下一章看看`initState()`与`vm.$mount()`函数的调用。

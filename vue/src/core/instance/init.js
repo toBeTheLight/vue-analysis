@@ -97,7 +97,7 @@ export function initMixin (Vue: Class<Component>) {
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
-    // 有el的话进行挂载，否则需要手动$mount
+    // 有el的话进行挂载，否则需要手动$mount，实际的render也在这一部分
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
