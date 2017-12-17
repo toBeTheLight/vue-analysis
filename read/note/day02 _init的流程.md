@@ -1,6 +1,6 @@
-# day02 new调用
+# new调用
 这一章从`new Vue()`开始
-
+构造函数为
 ```js
 function Vue (options) {
   if (process.env.NODE_ENV !== 'production' &&
