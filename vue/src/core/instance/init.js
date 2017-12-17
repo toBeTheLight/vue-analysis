@@ -57,24 +57,47 @@ export function initMixin (Vue: Class<Component>) {
     } else {
       vm._renderProxy = vm
     }
-    // expose real self
+    // 挂载自己
     vm._self = vm
+    // 声明周期相关配置，包含组件关系。声明周期标志量等
     initLifecycle(vm)
+    // 事件相关配置
     initEvents(vm)
+    /* render功能的初始化
+     * 在这个函数内只是做了一些render相关的初始化工作，并没有真正的进入render的过程。
+     * 我们看前面的函数调用顺序也能发现`beforeCreated`的钩子函数是在这之后调用的，所以很合理。
+     * 函数内向vm实例上添加了一些方法，
+     * 同时对'$attrs'和'$listeners'使用`Object.defineProperty`进行了动态响应的设置。
+     * 这两个属性可以去查文档。
+     */
     initRender(vm)
+    // 触发beforeCreate钩子
     callHook(vm, 'beforeCreate')
+    // 这是2.2.0新增的inject属性的define
     initInjections(vm) // resolve injections before data/props
+    /*
+     * 干了这些事
+     * initProps
+     * initMethods
+     * initData
+     * initComputed
+     * initWatch
+     */
     initState(vm)
+    // 这个是与上面的inject属性配合使用的一个属性
     initProvide(vm) // resolve provide after data/props
+    // 到此 实例创建完毕
     callHook(vm, 'created')
 
     /* istanbul ignore if */
+    // 哦~~~performance
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
       vm._name = formatComponentName(vm, false)
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 有el的话进行挂载，否则需要手动$mount
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }

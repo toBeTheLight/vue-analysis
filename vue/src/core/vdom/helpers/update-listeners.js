@@ -51,6 +51,8 @@ export function updateListeners (
   for (name in on) {
     cur = on[name]
     old = oldOn[name]
+    // 对事件修饰符的解析
+    // https://cn.vuejs.org/v2/guide/render-function.html#事件-amp-按键修饰符
     event = normalizeEvent(name)
     if (isUndef(cur)) {
       process.env.NODE_ENV !== 'production' && warn(

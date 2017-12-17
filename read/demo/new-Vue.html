@@ -22,10 +22,12 @@
     // })
     var vm = new Vue({
       el: '#app',
+      data: {
+        'key': 'value'
+      },
       created () {
         console.log(this)
-      },
-      inject: ['value']
+      }
     })
   </script>
 </body>

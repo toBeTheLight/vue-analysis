@@ -22,8 +22,9 @@ export let isUpdatingChildComponent: boolean = false
 
 export function initLifecycle (vm: Component) {
   const options = vm.$options
-
+  // 进行组件父子关系的设置
   // locate first non-abstract parent
+  // 一个不推荐使用的api parent，用于传递数据
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
@@ -34,12 +35,13 @@ export function initLifecycle (vm: Component) {
 
   vm.$parent = parent
   vm.$root = parent ? parent.$root : vm
-
+  // 初始化一些值
   vm.$children = []
   vm.$refs = {}
 
   vm._watcher = null
   vm._inactive = null
+  // 初始化一些标志声明周期状态的值
   vm._directInactive = false
   vm._isMounted = false
   vm._isDestroyed = false
