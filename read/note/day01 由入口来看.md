@@ -241,7 +241,7 @@ Vue.prototype.$mount = function () {
 // 在$mount 中有调用compileToFunctions，函数作用是template 编译为render函数
 Vue.compile = compileToFunctions
 ```
-
+# 结语
 此章完，主要看了Vue的初始化的过程。
 
 [参考。](http://hcysun.me/2017/03/03/Vue%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/)
