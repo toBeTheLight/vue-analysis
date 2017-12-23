@@ -24,14 +24,21 @@ export function validateProp (
   propsData: Object,
   vm?: Component
 ): any {
+  console.log('示例props')
+  console.log(key, propOptions, propsData)
   const prop = propOptions[key]
+  // 当前组件是否有对应被传入的prop的值
   const absent = !hasOwn(propsData, key)
+  console.log(`props:${key}值没传入：${absent}`)
   let value = propsData[key]
-  // handle boolean props
   if (isType(Boolean, prop.type)) {
+    // prop包含boolean类型
     if (absent && !hasOwn(prop, 'default')) {
+      // 如果没传值且没默认值则默认值为false
       value = false
     } else if (!isType(String, prop.type) && (value === '' || value === hyphenate(key))) {
+      // 如果类型不包含string，且值为空串或值与key相同，则值设置为true
+      console.log(`传入值为${value}`, typeof value)
       value = true
     }
   }

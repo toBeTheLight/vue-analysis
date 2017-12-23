@@ -46,16 +46,22 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 }
 
 export function initState (vm: Component) {
+  // 应该是watchers监听队列，做数据绑定的东西
   vm._watchers = []
   const opts = vm.$options
+  // 有props 初始化prop
   if (opts.props) initProps(vm, opts.props)
+  // 有methods 初始化methods
   if (opts.methods) initMethods(vm, opts.methods)
   if (opts.data) {
+    // 有data 初始化data
     initData(vm)
   } else {
+    // 无则对_date进行watch
     observe(vm._data = {}, true /* asRootData */)
   }
   if (opts.computed) initComputed(vm, opts.computed)
+  // firefox 对象原型有watch属性，做排除
   if (opts.watch && opts.watch !== nativeWatch) {
     initWatch(vm, opts.watch)
   }
@@ -64,14 +70,18 @@ export function initState (vm: Component) {
 function initProps (vm: Component, propsOptions: Object) {
   const propsData = vm.$options.propsData || {}
   const props = vm._props = {}
-  // cache prop keys so that future props updates can iterate using Array
-  // instead of dynamic object key enumeration.
+  // 使用数组缓存prop键避免使用动态的对象来遍历props
   const keys = vm.$options._propKeys = []
   const isRoot = !vm.$parent
+  console.log('当前组件是根组件', isRoot, vm.$parent)
+  // 根组件好像不能传入props，但是可以内部定义props的值，
+  // 所以还是要进行处理的，就是这么用不太好吧。
   // root instance props should be converted
   observerState.shouldConvert = isRoot
+  // 遍历对props中的值进行处理
   for (const key in propsOptions) {
     keys.push(key)
+    // 对值进行处理，包括类型检查和默认缺省值处理
     const value = validateProp(key, propsOptions, propsData, vm)
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
@@ -95,12 +105,14 @@ function initProps (vm: Component, propsOptions: Object) {
         }
       })
     } else {
+      // 对props进行动态响应设置
       defineReactive(props, key, value)
     }
     // static props are already proxied on the component's prototype
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
     if (!(key in vm)) {
+      // 静态的只做基本的读写操作
       proxy(vm, `_props`, key)
     }
   }
@@ -251,6 +263,7 @@ function createComputedGetter (key) {
 function initMethods (vm: Component, methods: Object) {
   const props = vm.$options.props
   for (const key in methods) {
+    // 做了method null值检查，与props冲突检查，与内置方法冲突检查
     if (process.env.NODE_ENV !== 'production') {
       if (methods[key] == null) {
         warn(
@@ -272,6 +285,10 @@ function initMethods (vm: Component, methods: Object) {
         )
       }
     }
+     /*
+      * 虽然你是个null 我还是要给你个默认值啊 _ => _
+      * 有值则将vm作为this绑定给methods[key]赋值与vm[key]
+      */
     vm[key] = methods[key] == null ? noop : bind(methods[key], vm)
   }
 }

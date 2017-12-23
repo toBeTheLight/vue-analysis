@@ -22,6 +22,12 @@ const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
  * we don't want to force conversion because the value may be a nested value
  * under a frozen data structure. Converting it would defeat the optimization.
  */
+/*
+ * 默认情况下，当设置一个响应属性是，新的值也会被转化成响应值，但是当传递prop时，
+ * 我们不希望发生强制转化，欣慰新的值可能是一个冻结了数据结构下的嵌套值，
+ * 转换它的话可能会破坏优化
+ * 暂时没懂什么意思，好像是frozen型的数据不做响应式转化
+ */
 export const observerState = {
   shouldConvert: true
 }

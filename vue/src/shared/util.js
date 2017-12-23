@@ -173,6 +173,7 @@ export const hyphenate = cached((str: string): string => {
 
 /**
  * Simple bind, faster than native
+ * https://stackoverflow.com/questions/17638305/why-is-bind-slower-than-a-closure
  */
 export function bind (fn: Function, ctx: Object): Function {
   function boundFn (a) {
@@ -184,6 +185,7 @@ export function bind (fn: Function, ctx: Object): Function {
       : fn.call(ctx)
   }
   // record original fn length
+  console.log(fn, fn.length)
   boundFn._length = fn.length
   return boundFn
 }

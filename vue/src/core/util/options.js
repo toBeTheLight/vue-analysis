@@ -367,8 +367,6 @@ export function mergeOptions (
   // 处理并检查props属性是否符合vue规范
   normalizeProps(child, vm)
   // 处理并检查inject属性是否符合vue规范
-  
-  console.log(JSON.stringify(child))
   normalizeInject(child, vm)
   // 处理指令，会给设置默认bind和update钩子
   normalizeDirectives(child)
