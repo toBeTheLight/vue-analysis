@@ -3,11 +3,6 @@
 构造函数为
 ```js
 function Vue (options) {
-  if (process.env.NODE_ENV !== 'production' &&
-    !(this instanceof Vue)
-  ) {
-    warn('Vue is a constructor and should be called with the `new` keyword')
-  }
   // new 调用Vue构造函数后进行_init
   this._init(options)
 }
@@ -22,11 +17,6 @@ Vue.prototype._init = function (options?: Object) {
   // 2. 首先在`this`上添加了`uid`属性，这是一个自增的值，每调用一次`Vue`就会`+1`，这个id可用来分辨递归或遍历出的组件的异常。
   vm._uid = uid++
   let startTag, endTag
-  if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
-    startTag = `vue-perf-start:${vm._uid}`
-    endTag = `vue-perf-end:${vm._uid}`
-    mark(startTag)
-  }
   // 3. 在`this`上添加了`_isVue`属性，值为`true`
   vm._isVue = true
   // 4. 判断 `options && options._isComponent`，经过调试发现使用`Vue.component`时，会被添加`_isComponent = true`，我们先不管它，使用`new Vue()`并不会走此分支，会进入下方代码分支，此时使用`mergeOptions`合并参数。
@@ -57,7 +47,7 @@ Vue.prototype._init = function (options?: Object) {
   // 这是2.2.0新增的inject属性的初始化
   // 看文档与代码。inject的响应性质与prop、data不同。
   initInjections(vm)
-  // 重头戏，watch是在这里进行的初始化
+  // 大部分watch是在这里进行的初始化
   initState(vm)
   // 这个是与上面的inject属性配合使用的一个属性
   initProvide(vm)
