@@ -185,7 +185,6 @@ export function bind (fn: Function, ctx: Object): Function {
       : fn.call(ctx)
   }
   // record original fn length
-  console.log(fn, fn.length)
   boundFn._length = fn.length
   return boundFn
 }

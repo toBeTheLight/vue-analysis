@@ -14,19 +14,12 @@
   <script>
     Vue.component('my-component', {
       template: `<a>component</a>`,
-      data () {
-        return {
-          message: 'message'
-        }
-      },
+      // data () {
+      //   return {
+      //   }
+      // },
+      data: {},
       methods: {
-        testMethod (a) {
-        }
-      },
-      mounted () {
-        setTimeout(()=>{
-          console.log(this.testMethod)
-        }, 1000)
       }
     })
     var vm = new Vue({

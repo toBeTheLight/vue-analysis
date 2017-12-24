@@ -146,14 +146,21 @@ function initData (vm: Component) {
           vm
         )
       }
+      if (props && hasOwn(props, key)) {
+        warn(
+          `The data property "${key}" is already declared as a prop. ` +
+          `Use prop default value instead.`,
+          vm
+        )
+      }
+      if (isReserved(key)) {
+        warn(
+          `Avoid defining component data that start with _ or $.`,
+          vm
+        )
+      }
     }
-    if (props && hasOwn(props, key)) {
-      process.env.NODE_ENV !== 'production' && warn(
-        `The data property "${key}" is already declared as a prop. ` +
-        `Use prop default value instead.`,
-        vm
-      )
-    } else if (!isReserved(key)) {
+    if (!isReserved(key)) {
       proxy(vm, `_data`, key)
     }
   }
@@ -265,9 +272,9 @@ function initMethods (vm: Component, methods: Object) {
   for (const key in methods) {
     // 做了method null值检查，与props冲突检查，与内置方法冲突检查
     if (process.env.NODE_ENV !== 'production') {
-      if (methods[key] == null) {
+      if (typeof methods[key] !== 'function') {
         warn(
-          `Method "${key}" has an undefined value in the component definition. ` +
+          `Method "${key}" is not a function in the component definition. ` +
           `Did you reference the function correctly?`,
           vm
         )
@@ -289,7 +296,7 @@ function initMethods (vm: Component, methods: Object) {
       * 虽然你是个null 我还是要给你个默认值啊 _ => _
       * 有值则将vm作为this绑定给methods[key]赋值与vm[key]
       */
-    vm[key] = methods[key] == null ? noop : bind(methods[key], vm)
+    vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)
   }
 }
 

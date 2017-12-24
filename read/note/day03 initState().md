@@ -67,7 +67,7 @@ function initProps (vm: Component, propsOptions: Object) {
   observerState.shouldConvert = true
 }
 ```
-2. initMethods
+## 2. initMethods
 ```js
 function initMethods (vm: Component, methods: Object) {
   const props = vm.$options.props
@@ -87,6 +87,49 @@ function initMethods (vm: Component, methods: Object) {
     vm[key] = methods[key] == null ? noop : bind(methods[key], vm)
   }
 }
+```
+## 3.initData
+```js
+  let data = vm.$options.data
+  data = vm._data = typeof data === 'function'
+    ? getData(data, vm)
+    : data || {}
+  if (!isPlainObject(data)) {
+    data = {}
+    process.env.NODE_ENV !== 'production' && warn(
+      'data functions should return an object:\n' +
+      'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
+      vm
+    )
+  }
+  // proxy data on instance
+  const keys = Object.keys(data)
+  const props = vm.$options.props
+  const methods = vm.$options.methods
+  let i = keys.length
+  while (i--) {
+    const key = keys[i]
+    if (process.env.NODE_ENV !== 'production') {
+      if (methods && hasOwn(methods, key)) {
+        warn(
+          `Method "${key}" has already been defined as a data property.`,
+          vm
+        )
+      }
+    }
+    // data是否与props同名，同名则警告
+    if (props && hasOwn(props, key)) {
+      process.env.NODE_ENV !== 'production' && warn(
+        `The data property "${key}" is already declared as a prop. ` +
+        `Use prop default value instead.`,
+        vm
+      )
+    } else if (!isReserved(key)) {
+      proxy(vm, `_data`, key)
+    }
+  }
+  // observe data
+  observe(data, true /* asRootData */)
 ```
 
 # 补充
