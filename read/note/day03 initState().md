@@ -17,7 +17,7 @@ function initState (vm: Component) {
     // 有data 初始化data
     initData(vm)
   } else {
-    // 无则对_date进行watch
+    // 无则对_date进行observe，其实就是给data默认值{}
     observe(vm._data = {}, true /* asRootData */)
   }
   // 有computed 则初始化computed
@@ -34,9 +34,9 @@ function initState (vm: Component) {
 3. initData
 4. initComputed
 5. initWatch
+我们先简单的看一下这几函数
 
 ## 1.initProps
-
 ```js
 function initProps (vm: Component, propsOptions: Object) {
   const propsData = vm.$options.propsData || {}
@@ -67,6 +67,9 @@ function initProps (vm: Component, propsOptions: Object) {
   observerState.shouldConvert = true
 }
 ```
+重点是`defineReactive(props, key, value)`
+要看下defineReactive
+
 ## 2. initMethods
 ```js
 function initMethods (vm: Component, methods: Object) {
@@ -88,20 +91,15 @@ function initMethods (vm: Component, methods: Object) {
   }
 }
 ```
+
 ## 3.initData
 ```js
+function initData (vm: Component) {
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
-  if (!isPlainObject(data)) {
-    data = {}
-    process.env.NODE_ENV !== 'production' && warn(
-      'data functions should return an object:\n' +
-      'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
-      vm
-    )
-  }
+  // 此处删除了对data的类型监测，data不是对象会变成{}
   // proxy data on instance
   const keys = Object.keys(data)
   const props = vm.$options.props
@@ -109,28 +107,79 @@ function initMethods (vm: Component, methods: Object) {
   let i = keys.length
   while (i--) {
     const key = keys[i]
-    if (process.env.NODE_ENV !== 'production') {
-      if (methods && hasOwn(methods, key)) {
-        warn(
-          `Method "${key}" has already been defined as a data property.`,
-          vm
-        )
-      }
-    }
-    // data是否与props同名，同名则警告
-    if (props && hasOwn(props, key)) {
-      process.env.NODE_ENV !== 'production' && warn(
-        `The data property "${key}" is already declared as a prop. ` +
-        `Use prop default value instead.`,
-        vm
-      )
-    } else if (!isReserved(key)) {
+    /*
+     * 此处删除了对data的验证
+     * 1. 是否与methods重复
+     * 2. 是否与props重复
+     * 3. 是否可能是保留属性
+     */
+    // 不是保留属性则进行set、get
+    if (!isReserved(key)) {
       proxy(vm, `_data`, key)
     }
   }
   // observe data
   observe(data, true /* asRootData */)
+}
 ```
+重点是`observe(data, true /* asRootData */)`
+等下看些observe
+
+## 4. initComputed
+```js
+function initComputed (vm: Component, computed: Object) {
+  const watchers = vm._computedWatchers = Object.create(null)
+  const isSSR = isServerRendering()
+  for (const key in computed) {
+    const userDef = computed[key]
+    const getter = typeof userDef === 'function' ? userDef : userDef.get
+    // 此处删除了对计算属性getter必须的验证
+    // 创建watcher
+    if (!isSSR) {
+      watchers[key] = new Watcher(
+        vm,
+        getter || noop,
+        noop,
+        computedWatcherOptions
+      )
+    }
+    if (!(key in vm)) {
+      // 创建createComputedGetter并替代get
+      defineComputed(vm, key, userDef)
+    }
+    // 此处删除了computed属性在data和props中属性重复的检测
+  }
+}
+```
+应该是基于watch的。然后对computed的get方法做了基于watch的重写。
+等下看下Watcher构造函数和createComputedGetter方法
+
+## 5. initWatch
+```js
+function initWatch (vm: Component, watch: Object) {
+  for (const key in watch) {
+    const handler = watch[key]
+    if (Array.isArray(handler)) {
+      for (let i = 0; i < handler.length; i++) {
+        createWatcher(vm, key, handler[i])
+      }
+    } else {
+      createWatcher(vm, key, handler)
+    }
+  }
+}
+```
+对watch创建watcher
+
+# 流程总结
+
+
+1. initProps -> defineReactive -> new Dep
+2. initMethods -> method.bind(vm)
+3. initData -> observe -> new Observer -> 对对象和数组类型进行不同 defineReactive
+4. initComputed -> new Watcher 和 defineComputed -> createComputedGetter
+5. initWatch -> createWatcher -> vm.$watch -> new Watcher
+
 
 # 补充
 1. initProps中`isRoot = !vm.$parent`判断原因不清楚

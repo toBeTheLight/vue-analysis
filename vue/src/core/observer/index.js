@@ -47,6 +47,9 @@ export class Observer {
     this.value = value
     this.dep = new Dep()
     this.vmCount = 0
+    /**
+     * Define a property.
+     */
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
       const augment = hasProto
@@ -106,15 +109,16 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
 }
 
 /**
- * Attempt to create an observer instance for a value,
- * returns the new observer if successfully observed,
- * or the existing observer if the value already has one.
+ * 试图为值创造一个观察者observer实例
+ * 如果成功创建则返回新的观察者
+ * 如果已经有了则返回现有的
  */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
   if (!isObject(value) || value instanceof VNode) {
     return
   }
   let ob: Observer | void
+  // value已经有__ob__且确实是Observer的实例，则直接返回
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else if (
@@ -143,7 +147,6 @@ export function defineReactive (
   shallow?: boolean
 ) {
   const dep = new Dep()
-
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
@@ -186,6 +189,7 @@ export function defineReactive (
         val = newVal
       }
       childOb = !shallow && observe(newVal)
+      // 发布通知
       dep.notify()
     }
   })

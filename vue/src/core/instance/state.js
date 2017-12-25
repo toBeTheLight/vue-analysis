@@ -73,7 +73,6 @@ function initProps (vm: Component, propsOptions: Object) {
   // 使用数组缓存prop键避免使用动态的对象来遍历props
   const keys = vm.$options._propKeys = []
   const isRoot = !vm.$parent
-  console.log('当前组件是根组件', isRoot, vm.$parent)
   // 根组件好像不能传入props，但是可以内部定义props的值，
   // 所以还是要进行处理的，就是这么用不太好吧。
   // root instance props should be converted
@@ -139,6 +138,11 @@ function initData (vm: Component) {
   let i = keys.length
   while (i--) {
     const key = keys[i]
+    /*
+     * 1. 是否与methods重复
+     * 2. 是否与props重复
+     * 3. 是否可能是保留属性
+     */
     if (process.env.NODE_ENV !== 'production') {
       if (methods && hasOwn(methods, key)) {
         warn(
@@ -160,6 +164,7 @@ function initData (vm: Component) {
         )
       }
     }
+    // 不是保留属性则进行set、get
     if (!isReserved(key)) {
       proxy(vm, `_data`, key)
     }
@@ -183,7 +188,6 @@ function initComputed (vm: Component, computed: Object) {
   const watchers = vm._computedWatchers = Object.create(null)
   // computed properties are just getters during SSR
   const isSSR = isServerRendering()
-
   for (const key in computed) {
     const userDef = computed[key]
     const getter = typeof userDef === 'function' ? userDef : userDef.get
@@ -210,6 +214,7 @@ function initComputed (vm: Component, computed: Object) {
     if (!(key in vm)) {
       defineComputed(vm, key, userDef)
     } else if (process.env.NODE_ENV !== 'production') {
+      // $options.$options.data可能是个函数，所以要用$data
       if (key in vm.$data) {
         warn(`The computed property "${key}" is already defined in data.`, vm)
       } else if (vm.$options.props && key in vm.$options.props) {
