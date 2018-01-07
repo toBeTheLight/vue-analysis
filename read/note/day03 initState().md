@@ -3,7 +3,7 @@
 
 ## 代码
 
-针对各配置属性进行了动态响应的设置
+此函数针对各配置属性进行了动态响应的设置
 ```js
 function initState (vm: Component) {
   // 应该是watchers监听队列，做数据绑定的东西
@@ -68,7 +68,7 @@ function initProps (vm: Component, propsOptions: Object) {
 }
 ```
 重点是`defineReactive(props, key, value)`
-要看下defineReactive
+要看下defineReactive。
 
 ## 2. initMethods
 ```js
@@ -123,7 +123,7 @@ function initData (vm: Component) {
 }
 ```
 重点是`observe(data, true /* asRootData */)`
-等下看些observe
+等下看下observe。
 
 ## 4. initComputed
 ```js
@@ -179,7 +179,7 @@ function initWatch (vm: Component, watch: Object) {
 4. initComputed -> new Watcher 和 defineComputed -> createComputedGetter
 5. initWatch -> createWatcher -> vm.$watch -> new Watcher
 
-从中我们可以看到关键在于`defineReactive`、`Dep`、`new Watcher`部分。
+从中我们可以看到关键在于`defineReactive`、`Dep`、`observe`、`new Watcher`部分。
 我们看完day02中提到的`vm.$mount()`再来看这几个函数。
 
 # 补充
