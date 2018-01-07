@@ -173,13 +173,14 @@ function initWatch (vm: Component, watch: Object) {
 
 # 流程总结
 
-
 1. initProps -> defineReactive -> new Dep
 2. initMethods -> method.bind(vm)
 3. initData -> observe -> new Observer -> 对对象和数组类型进行不同 defineReactive
 4. initComputed -> new Watcher 和 defineComputed -> createComputedGetter
 5. initWatch -> createWatcher -> vm.$watch -> new Watcher
 
+从中我们可以看到关键在于`defineReactive`、`Dep`、`new Watcher`部分。
+我们看完day02中提到的`vm.$mount()`再来看这几个函数。
 
 # 补充
 1. initProps中`isRoot = !vm.$parent`判断原因不清楚
