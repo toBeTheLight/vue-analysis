@@ -9,16 +9,16 @@
 </head>
 <body>
   <div id="app">
-    <my-component test="222" sha="sha"/>
+    <p v-html="title">
   </div>
   <script>
-    Vue.component('my-component', {
-      template: `<div>my-component</div>`,
-      props: ['test']
-    })
     var vm = new Vue({
       el: '#app',
-      porps: ['props1'],
+      data () {
+        return {
+          title: '自我介绍'
+        }
+      }
     })
   </script>
 </body>
