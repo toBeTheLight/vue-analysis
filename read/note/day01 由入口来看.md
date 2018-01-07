@@ -19,6 +19,8 @@ npm run dev
 # 二、找主文件
 
 ## 根据rollup配置的entry和import的引入顺序
+
+对Vue的处理顺序和引入顺序恰好是相反的，引入顺序如下：
 1. build/config.js ->
 2. src/platforms/web/entry-runtime-with-compiler.js ->
 3. src/platforms/web/runtime/index.js ->
@@ -31,7 +33,7 @@ npm run dev
 2. 根据运行平台(和你的构建指令也有关系)不同进行不同配置的入口。
 3. 就要找到了，此文件内对`Vue`做了平台相关的配置。
 4. 找到了，在`Vue`上添加了`version`，添加了`options{components, directive, filter})`
-5. 我们先看这个，然后按照5、4、3、2、1的顺序看源代码中都对Vue做了哪些处理。
+5. 我们先看这个，然后按照5、4、3、2、1的处理顺序看源代码中都对Vue做了哪些处理。
 
 
 # 三、src/core/instance/index.js
