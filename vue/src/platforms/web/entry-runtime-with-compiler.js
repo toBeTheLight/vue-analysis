@@ -19,20 +19,24 @@ Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
+  // 元素选取，query是对传入dom或string的兼容处理
   el = el && query(el)
 
   /* istanbul ignore if */
+  // 警告不允许挂载在body或html上
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
     return this
   }
-
+  // 取配置
   const options = this.$options
   // resolve template/el and convert to render function
+  // 编译成render函数
   if (!options.render) {
     let template = options.template
+    // 有template就拿template做编译
     if (template) {
       if (typeof template === 'string') {
         if (template.charAt(0) === '#') {
@@ -54,6 +58,7 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
+      // 不然就拿el的outerHTML做编译
       template = getOuterHTML(el)
     }
     if (template) {
@@ -61,7 +66,7 @@ Vue.prototype.$mount = function (
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      // 此处将template真正将template编译成render函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         shouldDecodeNewlines,
         shouldDecodeNewlinesForHref,
